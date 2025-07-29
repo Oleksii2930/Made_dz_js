@@ -1,0 +1,10 @@
+{
+  "name": "homeworkJS",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hw3/hw3-1/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true
+}
