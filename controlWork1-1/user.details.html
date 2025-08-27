@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Details</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .user-details {
+      border: 2px solid #333;
+      padding: 10px;
+      margin: 10px auto;
+      background: #f0f8ff;
+      width: 90%;
+      box-sizing: border-box;
+      white-space: pre-wrap; /* щоб \n коректно відображались */
+    }
+    #load-posts {
+      display: block;
+      margin: 20px auto;
+      width: 90%;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .posts {
+      margin: 0 10px 20px;
+    }
+    .post {
+      border: 1px solid #666;
+      background: #fff3cd;
+      padding: 8px;
+      margin: 5px;
+      display: inline-block;
+      width: calc(20% - 10px); /* 5 в ряд */
+      vertical-align: top;
+      box-sizing: border-box;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 10px;
+      text-decoration: none;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .note { color: #b00; margin: 10px; }
+  </style>
+</head>
+<body>
+<h1>User Details</h1>
+<div id="user-container" class="user-details"></div>
+<button id="load-posts">Posts of current user</button>
+<div id="posts-container" class="posts"></div>
+
+<script>
+  const userId = new URLSearchParams(location.search).get("id");
+
+  if (!userId) {
+    document.getElementById("user-container").innerHTML =
+            'Немає параметра <b>?id=</b>. Поверніться на <a href="index.html">index.html</a> і відкрийте користувача через кнопку Details.';
+  } else {
+    fetch(`https://jsonplaceholder.typicode.com/users/${encodeURIComponent(userId)}`)
+            .then(r => {
+              if (!r.ok) throw new Error("User not found");
+              return r.json();
+            })
+            .then(user => {
+              // Виводимо ВСЮ інфу без виключень (як вимагалось) — JSON у <pre>
+              const pre = document.createElement("pre");
+              pre.textContent = JSON.stringify(user, null, 2);
+              const box = document.getElementById("user-container");
+              box.innerHTML = "";
+              box.appendChild(pre);
+            })
+            .catch(err => {
+              document.getElementById("user-container").innerHTML =
+                      '<div class="note">Не вдалося завантажити користувача.</div>';
+              console.error(err);
+            });
+  }
+
+  document.getElementById("load-posts").addEventListener("click", () => {
+    if (!userId) return;
+    fetch(`https://jsonplaceholder.typicode.com/users/${encodeURIComponent(userId)}/posts`)
+            .then(r => {
+              if (!r.ok) throw new Error("Posts not found");
+              return r.json();
+            })
+            .then(posts => {
+              const wrap = document.getElementById("posts-container");
+              wrap.innerHTML = "";
+              posts.forEach(post => {
+                const card = document.createElement("div");
+                card.className = "post";
+                const title = document.createElement("div");
+                title.textContent = post.title;
+                const link = document.createElement("a");
+                link.className = "btn";
+                link.href = `post-details.html?id=${encodeURIComponent(post.id)}`;
+                link.textContent = "Details";
+
+                card.appendChild(title);
+                card.appendChild(link);
+                wrap.appendChild(card);
+              });
+            })
+            .catch(err => {
+              document.getElementById("posts-container").innerHTML =
+                      '<div class="note">Не вдалося завантажити пости.</div>';
+              console.error(err);
+            });
+  });
+</script>
+</body>
+</html>

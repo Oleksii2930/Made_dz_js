@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name/Value Pair App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #6ca0dc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+        }
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        .left {
+            flex: 1;
+        }
+        .right {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 40px;
+        }
+        input {
+            width: 97%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+        select {
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Test</h2>
+    <div class="row">
+        <div class="left">
+            <label for="pairInput">Name/Value Pair</label><br>
+            <input type="text" id="pairInput" placeholder="Name=Value">
+            <br>
+            <label for="pairList">Name/Value Pair List</label><br>
+            <select id="pairList" multiple></select>
+        </div>
+        <div class="right">
+            <button onclick="addPair()">Add</button>
+            <button onclick="sortByName()">Sort by Name</button>
+            <button onclick="sortByValue()">Sort by Value</button>
+            <button onclick="deleteSelected()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const pairList = document.getElementById("pairList");
+
+    function addPair() {
+        const input = document.getElementById("pairInput").value.trim();
+        const regex = /^([a-zA-Z0-9]+)\s*=\s*([a-zA-Z0-9]+)$/;
+
+        if (!regex.test(input)) {
+            alert("❌ Invalid format! Use Name=Value (letters/numbers only).");
+            return;
+        }
+
+        const option = document.createElement("option");
+        option.text = input;
+        pairList.add(option);
+        document.getElementById("pairInput").value = "";
+    }
+
+    function sortByName() {
+        sortList(0);
+    }
+
+    function sortByValue() {
+        sortList(1);
+    }
+
+    function sortList(partIndex) {
+        let items = Array.from(pairList.options);
+        items.sort((a, b) => {
+            let [nameA, valueA] = a.text.split("=");
+            let [nameB, valueB] = b.text.split("=");
+            return (partIndex === 0 ? nameA.localeCompare(nameB) : valueA.localeCompare(valueB));
+        });
+        pairList.innerHTML = "";
+        items.forEach(opt => pairList.add(opt));
+    }
+
+    function deleteSelected() {
+        Array.from(pairList.selectedOptions).forEach(option => option.remove());
+    }
+</script>
+</body>
+</html>

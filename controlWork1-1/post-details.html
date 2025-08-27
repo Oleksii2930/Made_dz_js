@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Post Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .post-details {
+            border: 2px solid #444;
+            padding: 10px;
+            margin: 10px auto 20px;
+            background: #e6ffe6;
+            width: 90%;
+            box-sizing: border-box;
+            white-space: pre-wrap;
+        }
+        .comments {
+            margin: 0 10px 20px;
+        }
+        .comment {
+            border: 1px solid #666;
+            background: #f8d7da;
+            padding: 8px;
+            margin: 5px;
+            display: inline-block;
+            width: calc(25% - 10px); /* 4 в ряд */
+            vertical-align: top;
+            box-sizing: border-box;
+        }
+        .comment b { display: block; margin-bottom: 4px; }
+        .note { color: #b00; margin: 10px; }
+    </style>
+</head>
+<body>
+<h1>Post Details</h1>
+<div id="post-container" class="post-details"></div>
+<h2>Comments</h2>
+<div id="comments-container" class="comments"></div>
+
+<script>
+    const postId = new URLSearchParams(location.search).get("id");
+
+    if (!postId) {
+        document.getElementById("post-container").innerHTML =
+            'Немає параметра <b>?id=</b>. Відкрийте пост через кнопку з <a href="user-details.html">user-details.html</a>.';
+    } else {
+        fetch(`https://jsonplaceholder.typicode.com/posts/${encodeURIComponent(postId)}`)
+            .then(r => {
+                if (!r.ok) throw new Error("Post not found");
+                return r.json();
+            })
+            .then(post => {
+                const pre = document.createElement("pre");
+                pre.textContent = JSON.stringify(post, null, 2); // Уся інфа про пост
+                const box = document.getElementById("post-container");
+                box.innerHTML = "";
+                box.appendChild(pre);
+            })
+            .catch(err => {
+                document.getElementById("post-container").innerHTML =
+                    '<div class="note">Не вдалося завантажити пост.</div>';
+                console.error(err);
+            });
+
+        fetch(`https://jsonplaceholder.typicode.com/posts/${encodeURIComponent(postId)}/comments`)
+            .then(r => {
+                if (!r.ok) throw new Error("Comments not found");
+                return r.json();
+            })
+            .then(comments => {
+                const wrap = document.getElementById("comments-container");
+                wrap.innerHTML = "";
+                comments.forEach(c => {
+                    const div = document.createElement("div");
+                    div.className = "comment";
+                    div.innerHTML = `<b>${c.name}</b><i>${c.email}</i><p>${c.body}</p>`;
+                    wrap.appendChild(div);
+                });
+            })
+            .catch(err => {
+                document.getElementById("comments-container").innerHTML =
+                    '<div class="note">Не вдалося завантажити коментарі.</div>';
+                console.error(err);
+            });
+    }
+</script>
+</body>
+</html>

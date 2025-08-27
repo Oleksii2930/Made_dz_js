@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .post-details {
+            border: 2px solid #333;
+            padding: 20px;
+            background: #eef7ff;
+            margin: 20px auto;
+            border-radius: 8px;
+            width: 90%;
+        }
+        .comments {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px;
+        }
+        .comment {
+            border: 1px solid #666;
+            background: #fff6f6;
+            padding: 10px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<h1>Post Details</h1>
+<div id="post" class="post-details"></div>
+<h2>Comments</h2>
+<div class="comments" id="comments"></div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
+
+    // завантаження поста
+    fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
+        .then(res => res.json())
+        .then(post => {
+            document.getElementById('post').innerHTML =
+                `<pre>${JSON.stringify(post, null, 2)}</pre>`;
+        });
+
+    // завантаження коментарів
+    fetch(`https://jsonplaceholder.typicode.com/posts/${postId}/comments`)
+        .then(res => res.json())
+        .then(comments => {
+            const container = document.getElementById("comments");
+            comments.forEach(comment => {
+                const div = document.createElement("div");
+                div.className = "comment";
+                div.innerHTML = `
+            <h4>${comment.name}</h4>
+            <p><b>${comment.email}</b></p>
+            <p>${comment.body}</p>
+          `;
+                container.appendChild(div);
+            });
+        });
+</script>
+</body>
+</html>
