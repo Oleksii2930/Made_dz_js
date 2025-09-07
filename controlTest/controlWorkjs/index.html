@@ -66,10 +66,10 @@
             <select id="pairList" multiple></select>
         </div>
         <div class="right">
-            <button onclick="addPair()">Add</button>
-            <button onclick="sortByName()">Sort by Name</button>
-            <button onclick="sortByValue()">Sort by Value</button>
-            <button onclick="deleteSelected()">Delete</button>
+            <button id="btnAdd">Add</button>
+            <button id="btnSortName">Sort by Name</button>
+            <button id="btnSortValue">Sort by Value</button>
+            <button id="btnDelete">Delete</button>
         </div>
     </div>
 </div>
@@ -77,43 +77,61 @@
 <script>
     const pairList = document.getElementById("pairList");
 
+    document.getElementById("btnAdd").addEventListener("click", addPair);
+    document.getElementById("btnSortName").addEventListener("click", () => sortList(0));
+    document.getElementById("btnSortValue").addEventListener("click", () => sortList(1));
+    document.getElementById("btnDelete").addEventListener("click", deleteSelected);
+
     function addPair() {
-        const input = document.getElementById("pairInput").value.trim();
+        const inputField = document.getElementById("pairInput");
+        const input = inputField.value.trim();
         const regex = /^([a-zA-Z0-9]+)\s*=\s*([a-zA-Z0-9]+)$/;
 
         if (!regex.test(input)) {
-            alert("❌ Invalid format! Use Name=Value (letters/numbers only).");
+            alert("Invalid format! Use Name=Value (letters/numbers only).");
             return;
         }
 
+        const [name, value] = input.split("=");
+
+        // Перевірка чи такий ключ вже існує
+        for (const option of pairList.options) {
+            const existingName = option.innerText.split("=")[0];
+            if (existingName === name) {
+                alert(`Name "${name}" вже існує у списку!`);
+                return;
+            }
+        }
+
         const option = document.createElement("option");
-        option.text = input;
-        pairList.add(option);
-        document.getElementById("pairInput").value = "";
-    }
+        option.innerText = `${name}=${value}`;
+        pairList.appendChild(option);
 
-    function sortByName() {
-        sortList(0);
-    }
-
-    function sortByValue() {
-        sortList(1);
+        inputField.value = "";
     }
 
     function sortList(partIndex) {
-        let items = Array.from(pairList.options);
+        const items = Array.from(pairList.options);
         items.sort((a, b) => {
-            let [nameA, valueA] = a.text.split("=");
-            let [nameB, valueB] = b.text.split("=");
-            return (partIndex === 0 ? nameA.localeCompare(nameB) : valueA.localeCompare(valueB));
+            const [nameA, valueA] = a.innerText.split("=");
+            const [nameB, valueB] = b.innerText.split("=");
+            return partIndex === 0 ? nameA.localeCompare(nameB) : valueA.localeCompare(valueB);
         });
-        pairList.innerHTML = "";
-        items.forEach(opt => pairList.add(opt));
+
+        // Очищаємо select без innerHTML
+        while (pairList.firstChild) {
+            pairList.removeChild(pairList.firstChild);
+        }
+
+        // Додаємо відсортовані елементи назад
+        items.forEach(opt => pairList.appendChild(opt));
     }
 
     function deleteSelected() {
-        Array.from(pairList.selectedOptions).forEach(option => option.remove());
+        const selected = Array.from(pairList.selectedOptions);
+        selected.forEach(option => option.remove());
     }
 </script>
 </body>
 </html>
+
