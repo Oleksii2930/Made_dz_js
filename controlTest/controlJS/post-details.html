@@ -41,8 +41,12 @@
     fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
         .then(res => res.json())
         .then(post => {
-            document.getElementById('post').innerHTML =
-                `<pre>${JSON.stringify(post, null, 2)}</pre>`;
+            const postContainer = document.getElementById('post');
+
+            const pre = document.createElement('pre');
+            pre.innerText = JSON.stringify(post, null, 2);
+
+            postContainer.appendChild(pre);
         });
 
     // завантаження коментарів
@@ -50,17 +54,27 @@
         .then(res => res.json())
         .then(comments => {
             const container = document.getElementById("comments");
+
             comments.forEach(comment => {
                 const div = document.createElement("div");
                 div.className = "comment";
-                div.innerHTML = `
-            <h4>${comment.name}</h4>
-            <p><b>${comment.email}</b></p>
-            <p>${comment.body}</p>
-          `;
+
+                const h4 = document.createElement("h4");
+                h4.innerText = comment.name;
+
+                const emailP = document.createElement("p");
+                const emailB = document.createElement("b");
+                emailB.innerText = comment.email;
+                emailP.appendChild(emailB);
+
+                const bodyP = document.createElement("p");
+                bodyP.innerText = comment.body;
+
+                div.append(h4, emailP, bodyP);
                 container.appendChild(div);
             });
         });
 </script>
 </body>
 </html>
+
